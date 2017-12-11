@@ -41,7 +41,7 @@ class Interface:
         else:
             # print('putting packet in the IN queue')
             self.in_queue.put(pkt, block)
-            
+
         
 ## Implements a network layer packet
 # NOTE: You will need to extend this class for the packet to include
@@ -75,7 +75,36 @@ class NetworkPacket:
         dst = byte_S[0 : NetworkPacket.dst_S_length].strip('0')
         data_S = byte_S[NetworkPacket.dst_S_length : ]        
         return self(dst, data_S)
-    
+
+class MPLSFrame(NetworkPacket):
+    ## packet encoding lengths
+    dst_S_length = 5
+
+    ##@param dst: address of the destination host
+    # @param data_S: packet payload
+    # @param priority: packet priority
+    def __init__(self, dst, data_S, priority=0):
+        self.dst = dst
+        self.data_S = data_S
+        #TODO: add priority to the packet class
+
+    ## called when printing the object
+    def __str__(self):
+        return self.to_byte_S()
+
+    ## convert packet to a byte string for transmission over links
+    def to_byte_S(self):
+        byte_S = str(self.dst).zfill(self.dst_S_length)
+        byte_S += self.data_S
+        return byte_S
+
+    ## extract a packet object from a byte string
+    # @param byte_S: byte string representation of the packet
+    @classmethod
+    def from_byte_S(self, byte_S):
+        dst = byte_S[0 : NetworkPacket.dst_S_length].strip('0')
+        data_S = byte_S[NetworkPacket.dst_S_length : ]
+        return self(dst, data_S)
 
 ## Implements a network host for receiving and transmitting data
 class Host:
