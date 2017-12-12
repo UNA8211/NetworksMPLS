@@ -90,7 +90,7 @@ if __name__ == '__main__':
         t.start()
     
     #create some send events    
-    for i in range(2):
+    for i in range(3):
         priority = i%2
         host_1.udt_send('H3', 'MESSAGE_%d_FROM_H1' % i, priority)
         
