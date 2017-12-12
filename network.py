@@ -91,7 +91,7 @@ class MPLSFrame:
         self.dst = dst
         self.data_S = data_S
         if label is None:
-            self.label = str(random.randint(1, 10000000)).zfill(self.label_length)
+            self.label = str((random.randint(1, 10000000) * 2) + (1 if priority is 1 else 0)).zfill(self.label_length)
         else:
             self.label = label
         self.priority = priority
