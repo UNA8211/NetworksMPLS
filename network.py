@@ -80,14 +80,14 @@ class NetworkPacket:
 class MPLSFrame:
     ## packet encoding lengths
     label_length = 20
+    dst_S_length = 5
 
     ##@param dst: address of the destination host
     # @param data_S: packet payload
     # @param priority: packet priority
-    def __init__(self, label, pkt):
-        pkt_byte_S = pkt.to_byte_S
-        self.dst = pkt_byte_S[0: pkt.dst_S_length].strip('0')
-        self.data_S = pkt_byte_S[pkt.dst_S_length:]
+    def __init__(self, label, dst, data_S, priority=0):
+        self.dst = dst
+        self.data_S = data_S
         if label is None:
             self.label = str(random.randint(1,1000000)).zfill(self.label_length)
         else:
@@ -110,8 +110,8 @@ class MPLSFrame:
     @classmethod
     def from_byte_S(self, byte_S):
         label = byte_S[0: MPLSFrame.label_length]
-        dst = byte_S[MPLSFrame.label_length: MPLSFrame.dst_S_length].strip('0')
-        data_S = byte_S[MPLSFrame.dst_S_length : ]
+        dst = byte_S[MPLSFrame.label_length: MPLSFrame.label_length + MPLSFrame.dst_S_length].strip('0')
+        data_S = byte_S[MPLSFrame.label_length + MPLSFrame.dst_S_length : ]
         return self(label, dst, data_S)
 
 ## Implements a network host for receiving and transmitting data
@@ -205,9 +205,8 @@ class Router:
                 self.process_network_packet(p, i)
             elif fr.type_S == "MPLS":
                 # TODO: handle MPLS frames
-                # m_fr = MPLSFrame.from_byte_S(pkt_S) #parse a frame out
+                m_fr = MPLSFrame.from_byte_S(pkt_S) #parse a frame out
                 #for now, we just relabel the packet as an MPLS frame without encapsulation
-                m_fr = p
                 #send the MPLS frame for processing
                 self.process_MPLS_frame(m_fr, i)
             else:
@@ -219,9 +218,10 @@ class Router:
     def process_network_packet(self, pkt, i):
         #TODO: encapsulate the packet in an MPLS frame based on self.encap_tbl_D
         #for now, we just relabel the packet as an MPLS frame without encapsulation
-        if
         m_fr = pkt
-        print('%s: encapsulated packet "%s" as MPLS frame "%s"' % (self, pkt, m_fr))
+        if self.encap_tbl_D[pkt.dst] is 1:
+            m_fr = MPLSFrame(None, pkt.dst, pkt.data_S)
+            print('%s: encapsulated packet "%s" as MPLS frame "%s"' % (self, pkt, m_fr))
         #send the encapsulated packet for processing as MPLS frame
         self.process_MPLS_frame(m_fr, i)
 
@@ -234,7 +234,10 @@ class Router:
         print('%s: processing MPLS frame "%s"' % (self, m_fr))
         # for now forward the frame out interface 1
         try:
-            fr = LinkFrame('Network', m_fr.to_byte_S())
+            if self.decap_tbl_D[m_fr.dst] is 0:
+                fr = LinkFrame('MPLS', m_fr.to_byte_S())
+            else:
+                fr = LinkFrame('Network', m_fr.to_byte_S())
             self.intf_L[1].put(fr.to_byte_S(), 'out', True)
             print('%s: forwarding frame "%s" from interface %d to %d' % (self, fr, i, 1))
         except queue.Full:
