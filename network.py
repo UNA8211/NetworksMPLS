@@ -239,7 +239,7 @@ class Router:
                 print('%s: decapsulated packet "%s" as Network frame "%s"' % (self, m_fr, fr))
             # Send out on interface from the forwarding table
             self.intf_L[self.frwd_tbl_D[dst][i]].put(fr.to_byte_S(), 'out', True)
-            print('%s: forwarding frame "%s" from interface %d to %d' % (self, fr, i, self.frwd_tbl_D[dst]))
+            print('%s: forwarding frame "%s" from interface %d to %d' % (self, fr, i, self.frwd_tbl_D[dst][i]))
         except queue.Full:
             print('%s: frame "%s" lost on interface %d' % (self, p, i))
             pass
