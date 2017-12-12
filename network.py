@@ -1,5 +1,6 @@
 import queue
 import threading
+import random
 from link import LinkFrame
 
 
@@ -76,16 +77,21 @@ class NetworkPacket:
         data_S = byte_S[NetworkPacket.dst_S_length : ]        
         return self(dst, data_S)
 
-class MPLSFrame(NetworkPacket):
+class MPLSFrame:
     ## packet encoding lengths
-    dst_S_length = 5
+    label_length = 20
 
     ##@param dst: address of the destination host
     # @param data_S: packet payload
     # @param priority: packet priority
-    def __init__(self, dst, data_S, priority=0):
-        self.dst = dst
-        self.data_S = data_S
+    def __init__(self, label, pkt):
+        pkt_byte_S = pkt.to_byte_S
+        self.dst = pkt_byte_S[0: pkt.dst_S_length].strip('0')
+        self.data_S = pkt_byte_S[pkt.dst_S_length:]
+        if label is None:
+            self.label = str(random.randint(1,1000000)).zfill(self.label_length)
+        else:
+            self.label = label
         #TODO: add priority to the packet class
 
     ## called when printing the object
@@ -94,7 +100,8 @@ class MPLSFrame(NetworkPacket):
 
     ## convert packet to a byte string for transmission over links
     def to_byte_S(self):
-        byte_S = str(self.dst).zfill(self.dst_S_length)
+        byte_S = self.label
+        byte_S += str(self.dst).zfill(self.dst_S_length)
         byte_S += self.data_S
         return byte_S
 
@@ -102,9 +109,10 @@ class MPLSFrame(NetworkPacket):
     # @param byte_S: byte string representation of the packet
     @classmethod
     def from_byte_S(self, byte_S):
-        dst = byte_S[0 : NetworkPacket.dst_S_length].strip('0')
-        data_S = byte_S[NetworkPacket.dst_S_length : ]
-        return self(dst, data_S)
+        label = byte_S[0: MPLSFrame.label_length]
+        dst = byte_S[MPLSFrame.label_length: MPLSFrame.dst_S_length].strip('0')
+        data_S = byte_S[MPLSFrame.dst_S_length : ]
+        return self(label, dst, data_S)
 
 ## Implements a network host for receiving and transmitting data
 class Host:
@@ -211,6 +219,7 @@ class Router:
     def process_network_packet(self, pkt, i):
         #TODO: encapsulate the packet in an MPLS frame based on self.encap_tbl_D
         #for now, we just relabel the packet as an MPLS frame without encapsulation
+        if
         m_fr = pkt
         print('%s: encapsulated packet "%s" as MPLS frame "%s"' % (self, pkt, m_fr))
         #send the encapsulated packet for processing as MPLS frame
