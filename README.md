@@ -60,7 +60,7 @@ As the network becomes more complex and takes longer to execute, you may need to
 
 ## Assignment
 
-1. [10 points] ~~Implement MPLS forwarding such that only links incident on hosts carry `NetworkPackets` and links between routers only carry `MPLSFrames`.
+1. [10 points] ~~Implement MPLS forwarding such that only links incident on hosts carry `NetworkPackets` and links between routers only carry `MPLSFrames`.~~
 
 	a. [4 points] Implement the `MPLSFrame` class to encapsulate `NetworkPackets` as MPLS frames.
 	In the lectures slides we presented the MPLS frame structure and position with respect to link (Ethernet) and network (IP) layer packets as:
@@ -99,7 +99,7 @@ As the network becomes more complex and takes longer to execute, you may need to
 
 2. [5 points] ~~Implement MPLS forwarding, such that packets from different hosts follow different paths.
 Configure the more complex network shown below in `simulation.py`.
-Add transmissions from `Host 1` and `Host 2` to `Host 3` and configure MPLS tables such that routers encapsulate `NetworkPackets` as `MPLSFrames` and forward the packets from the different hosts on different paths.
+Add transmissions from `Host 1` and `Host 2` to `Host 3` and configure MPLS tables such that routers encapsulate `NetworkPackets` as `MPLSFrames` and forward the packets from the different hosts on different paths.~~
 
 
 	<!-- <img src="images/complex.png" alt="Drawing" style="width:400pt; height:100pt"/> -->
@@ -116,7 +116,7 @@ Add transmissions from `Host 1` and `Host 2` to `Host 3` and configure MPLS tabl
 	`NetworkPacket` constructor in this assignment has a `priority` argument, though it is currently unused.
 	The `udt_send()` function in simulation.py sends packet with priorities 0 and 1. 
 	Assume higher number priorities are higher priorities, i.e. 1 is higher than 0. 
-	Extend `NetworkPacket` to carry the priority number with which it was sent.
+	Extend `NetworkPacket` to carry the priority number with which it was sent.~~
 
 	b. [3 points] Recall that forwarding at this layer accounts for link capacities.
 	You will notice a bottleneck at `Router B` in problem 1, where queued packets take a while to offload.
